@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Prueba de Hipótesis: Fármaco VIH vs. Nueva Vacuna</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        medical: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-16">
+
+    <!-- Navbar / Header -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2.5 rounded-xl shadow-md">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">Simulador Interactivo: Prueba de Hipótesis Z</h1>
+                    <p class="text-xs text-slate-400">Bioestadística Médica: Medicamento Antirretroviral vs. Nueva Vacuna Terapéutica VIH</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <span class="w-2 h-2 mr-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                    Listo para GitHub Pages
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+
+        <!-- Context & Problem Statement Card -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <div class="flex items-start space-x-4">
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl hidden sm:block">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-lg font-bold text-slate-900 mb-1">Planteamiento del Problema Estadístico</h2>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-3">
+                        Imagina que eres un investigador médico. El tratamiento retroviral tradicional ($H_0$) produce una respuesta inmune promedio de <strong class="text-slate-900">500 células CD4+/mm³</strong> en pacientes infectados. Tienes una nueva vacuna terapéutica y quieres probar si incrementa significativamente las células CD4+ más allá de la terapia actual ($H_1$). Vas a medir una muestra de pacientes para comprobar si la mejora es estadísticamente significativa o fruto del azar.
+                    </p>
+                    <div class="flex flex-wrap gap-4 text-xs font-semibold">
+                        <div class="bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                            <span class="text-slate-500">Hipótesis Nula ($H_0$):</span> <span class="text-slate-800">$\mu = 500 \text{ células/mm³}$</span>
+                        </div>
+                        <div class="bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                            <span class="text-slate-500">Hipótesis Alternativa ($H_1$):</span> <span class="text-slate-800">$\mu > 500 \text{ células/mm³}$</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Layout: Inputs & Results -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Experiment Controls -->
+            <div class="lg:col-span-6 space-y-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-6">
+                    <div class="border-b border-slate-100 pb-4">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-3 h-3 bg-blue-600 rounded-full"></span>
+                            Configura tu Experimento
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Define los parámetros de tu estudio clínico</p>
+                    </div>
+
+                    <!-- Alpha Selection -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                            Tu "vara de medir": Nivel de Significancia ($\alpha$)
+                        </label>
+                        <select id="alphaSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            <option value="0.05" selected>0.05 (5% - Estándar Clínico)</option>
+                            <option value="0.01">0.01 (1% - Alta Exigencia)</option>
+                            <option value="0.10">0.10 (10% - Exploratorio)</option>
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1.5" id="alphaHelpText">
+                            Si el Valor P es menor que esto, concluyes que la nueva vacuna funciona.
+                        </p>
+                    </div>
+
+                    <!-- Data Generation Controls -->
+                    <div class="space-y-4 pt-2 border-t border-slate-100">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                            Ingresa los Datos de tu Muestra
+                        </label>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-slate-500 mb-1 font-medium">Tamaño de Muestra ($n$)</label>
+                                <select id="sampleSizeSelect" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-blue-500">
+                                    <option value="12">12 Pacientes</option>
+                                    <option value="20" selected>20 Pacientes</option>
+                                    <option value="30">30 Pacientes</option>
+                                    <option value="50">50 Pacientes</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-500 mb-1 font-medium">Alrededor de (CD4/mm³):</label>
+                                <input type="number" id="targetMeanInput" value="530" min="400" max="700" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <button id="btnGenerate" type="button" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors border border-slate-300 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Generar Nuevos Datos Aleatorios
+                        </button>
+
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1 font-medium">
+                                Conteo CD4+ en cada paciente (separados por comas):
+                            </label>
+                            <textarea id="sampleDataInput" rows="3" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs font-mono text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 leading-relaxed" placeholder="Ejemplo: 525, 540, 512, 531..."></textarea>
+                            <p class="text-[11px] text-slate-400 mt-1">Recuerda: la media de referencia tradicional es 500 células/mm³.</p>
+                        </div>
+                    </div>
+
+                    <!-- Execute Button -->
+                    <button id="btnAnalyze" type="button" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Analizar Datos y Tomar Decisión
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: Analysis Results Card (Styled exactly like user screenshot) -->
+            <div class="lg:col-span-6 space-y-6">
+                <div class="bg-slate-900 rounded-2xl p-6 text-white shadow-xl border border-slate-800 flex flex-col justify-between min-h-full">
+                    <div>
+                        <div class="border-b border-slate-800 pb-4 mb-6 flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <span class="w-3 h-3 bg-emerald-400 rounded-full"></span>
+                                Resultados del Análisis
+                            </h3>
+                            <span class="text-xs bg-slate-800 px-2.5 py-1 rounded-md text-slate-400 font-mono">Prueba Z Unilateral</span>
+                        </div>
+
+                        <!-- Stat Boxes Grid -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <!-- Calculated P-Value Box -->
+                            <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/60">
+                                <span class="block text-[11px] font-bold tracking-wider uppercase text-slate-400 mb-1">Valor P Calculado</span>
+                                <span id="resPValue" class="text-3xl font-extrabold text-emerald-400 tracking-tight font-mono">0.0001</span>
+                            </div>
+
+                            <!-- Alpha Level Box -->
+                            <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700/60">
+                                <span class="block text-[11px] font-bold tracking-wider uppercase text-slate-400 mb-1">Tu Nivel Alfa ($\alpha$)</span>
+                                <span id="resAlpha" class="text-3xl font-extrabold text-white tracking-tight font-mono">0.05</span>
+                            </div>
+                        </div>
+
+                        <!-- Comparison Sentence -->
+                        <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-800 text-center mb-6">
+                            <span class="text-xs text-slate-400">Comparación:</span>
+                            <p id="resComparisonText" class="text-sm font-semibold text-slate-200 mt-0.5">
+                                <span class="text-emerald-400 font-mono">0.0001</span> $\le$ <span class="font-mono">0.05</span> (P-value es menor o igual a Alfa)
+                            </p>
+                        </div>
+
+                        <!-- Hypothesis Conclusion Card -->
+                        <div id="conclusionCard" class="rounded-xl p-5 border transition-all bg-emerald-950/40 border-emerald-500/60 text-emerald-100">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg id="conclusionIcon" class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <h4 id="conclusionTitle" class="text-base font-bold text-emerald-400">¡Rechazamos la Hipótesis Nula!</h4>
+                            </div>
+                            <p id="conclusionBody" class="text-xs leading-relaxed text-slate-300">
+                                Los datos son suficientemente raros ($p = 0.0001$) si la vacuna fuera igual al tratamiento retroviral viejo. Concluimos que la nueva vacuna es significativamente mejor eliminando el VIH e incrementando las defensas.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
+                        <span>Conclusión estadística automatizada</span>
+                        <span id="timestampBadge">Actualizado justo ahora</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Math Procedure Section (Z-Test Math Steps) -->
+        <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+            <div class="border-b border-slate-100 pb-4">
+                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-3">
+                    <span class="p-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-extrabold">Σ</span>
+                    El Procedimiento Matemático (Prueba Z)
+                </h3>
+                <p class="text-xs text-slate-500 mt-1">Hemos procesado los datos ingresados. Calculamos su promedio y qué tanto varían entre sí (Desviación Estándar).</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Step 1: Sample Statistics -->
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">Paso 1</span>
+                            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900 mb-2">Estadísticas de tu Muestra</h4>
+                        <ul class="text-xs text-slate-600 space-y-2 font-mono">
+                            <li class="flex justify-between border-b border-slate-200/60 pb-1">
+                                <span>Media de referencia ($\mu_0$):</span>
+                                <strong class="text-slate-900" id="stepMu0">500 células</strong>
+                            </li>
+                            <li class="flex justify-between border-b border-slate-200/60 pb-1">
+                                <span>Media de tus datos ($\bar{X}$):</span>
+                                <strong class="text-blue-600" id="stepMean">528.83 células</strong>
+                            </li>
+                            <li class="flex justify-between border-b border-slate-200/60 pb-1">
+                                <span>Tamaño de muestra ($n$):</span>
+                                <strong class="text-slate-900" id="stepN">12 pacientes</strong>
+                            </li>
+                            <li class="flex justify-between pb-1">
+                                <span>Desviación Estándar ($s$):</span>
+                                <strong class="text-slate-900" id="stepStdDev">1.92</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step 2: Standard Error -->
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">Paso 2</span>
+                            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900 mb-2">Calcular el Error Estándar (SE)</h4>
+                        <p class="text-[11px] text-slate-500 mb-3">Estima cuánto esperamos que varíe el promedio por pura suerte.</p>
+                        
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 text-center space-y-1 font-mono text-xs">
+                            <div class="text-slate-500 font-sans">Fórmula: $SE = \frac{s}{\sqrt{n}}$</div>
+                            <div class="text-blue-700 font-bold text-sm" id="stepSEFormula">
+                                SE = 1.92 / √12 = 0.5556
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Test Statistic Z -->
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">Paso 3</span>
+                            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900 mb-2">Calcular el Estadístico de Prueba (Z)</h4>
+                        <p class="text-[11px] text-slate-500 mb-3">Mide a cuántos "pasos" (errores estándar) quedó tu promedio respecto al tratamiento tradicional.</p>
+                        
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 text-center space-y-1 font-mono text-xs">
+                            <div class="text-slate-500 font-sans">Fórmula: $Z = \frac{\bar{X} - \mu_0}{SE}$</div>
+                            <div class="text-emerald-600 font-extrabold text-sm" id="stepZFormula">
+                                Z = (528.83 - 500) / 0.5556 = 5.0996
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Gaussian Curve & Z-Table explanation -->
+        <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+            <div class="border-b border-slate-100 pb-4">
+                <div class="flex items-center space-x-3">
+                    <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">4</span>
+                    <h3 class="text-xl font-bold text-slate-900">¿De dónde sale el Valor P? (La Tabla Z)</h3>
+                </div>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed max-w-4xl">
+                    Una vez que tenemos nuestro valor Z (<span id="zTextInline" class="font-bold text-blue-600">5.10</span>), necesitamos saber a qué probabilidad equivale. Tradicionalmente, esto se busca en una <strong>"Tabla Z"</strong> (Tabla de Distribución Normal Estándar) en los libros de estadística. Hoy en día, esta página lo calcula de forma automática.
+                </p>
+                <p class="text-xs text-slate-600 mt-1 leading-relaxed max-w-4xl">
+                    <strong class="text-red-500">El Valor P es el área sombreada en rojo</strong> bajo la curva a la derecha de tu valor Z. Mientras más a la derecha (Z más grande), el área es menor. Un área diminuta significa que tu resultado es muy raro de obtener por mera casualidad.
+                </p>
+            </div>
+
+            <!-- Canvas Container for Bell Curve Graph -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 relative flex flex-col items-center">
+                <div class="w-full max-w-3xl overflow-hidden">
+                    <canvas id="bellCurveCanvas" width="800" height="320" class="w-full h-auto block"></canvas>
+                </div>
+                
+                <div class="mt-4 bg-slate-800/90 border border-slate-700 rounded-xl px-6 py-3 text-center">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Conclusión de la Tabla Z</span>
+                    <div id="zProbabilityExpr" class="text-base sm:text-lg font-mono font-extrabold text-white">
+                        P(Z > <span id="zValExpr" class="text-blue-400">5.0996</span>) = <span id="pValExpr" class="text-emerald-400">0.0001</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GitHub Pages Delivery Info Box -->
+        <section class="bg-slate-100 rounded-2xl p-6 border border-slate-300 text-slate-700">
+            <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2 mb-2">
+                <svg class="w-4 h-4 text-slate-800" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+                </svg>
+                ¿Cómo subir este archivo a tu GitHub para entregarlo?
+            </h4>
+            <ol class="text-xs list-decimal list-inside space-y-1.5 text-slate-600 font-medium">
+                <li>Guarda todo este código en un archivo llamado <code class="bg-white px-1.5 py-0.5 rounded border text-slate-900 font-mono">index.html</code>.</li>
+                <li>Crea un repositorio en GitHub (por ejemplo <code class="bg-white px-1.5 py-0.5 rounded border text-slate-900 font-mono">prueba-hipotesis-vih</code>).</li>
+                <li>Sube tu archivo <code class="bg-white px-1.5 py-0.5 rounded border text-slate-900 font-mono">index.html</code> a dicho repositorio.</li>
+                <li>Ve a <strong>Settings &gt; Pages</strong> en GitHub, selecciona la rama <code class="bg-white px-1.5 py-0.5 rounded border text-slate-900 font-mono">main</code> y guarda.</li>
+                <li>¡Listo! Copia el link público generado (<code class="bg-white px-1.5 py-0.5 rounded border text-slate-900 font-mono">https://tu-usuario.github.io/prueba-hipotesis-vih/</code>) para entregarlo.</li>
+            </ol>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Baseline reference mean (Traditional retroviral efficacy)
+        const REFERENCE_MU0 = 500;
+
+        // DOM Element Cache
+        const alphaSelect = document.getElementById('alphaSelect');
+        const sampleSizeSelect = document.getElementById('sampleSizeSelect');
+        const targetMeanInput = document.getElementById('targetMeanInput');
+        const sampleDataInput = document.getElementById('sampleDataInput');
+        const btnGenerate = document.getElementById('btnGenerate');
+        const btnAnalyze = document.getElementById('btnAnalyze');
+
+        // Results DOM
+        const resPValue = document.getElementById('resPValue');
+        const resAlpha = document.getElementById('resAlpha');
+        const resComparisonText = document.getElementById('resComparisonText');
+        const conclusionCard = document.getElementById('conclusionCard');
+        const conclusionTitle = document.getElementById('conclusionTitle');
+        const conclusionBody = document.getElementById('conclusionBody');
+        const conclusionIcon = document.getElementById('conclusionIcon');
+
+        // Step DOMs
+        const stepMu0 = document.getElementById('stepMu0');
+        const stepMean = document.getElementById('stepMean');
+        const stepN = document.getElementById('stepN');
+        const stepStdDev = document.getElementById('stepStdDev');
+        const stepSEFormula = document.getElementById('stepSEFormula');
+        const stepZFormula = document.getElementById('stepZFormula');
+
+        // Z-Table DOMs
+        const zTextInline = document.getElementById('zTextInline');
+        const zValExpr = document.getElementById('zValExpr');
+        const pValExpr = document.getElementById('pValExpr');
+        const canvas = document.getElementById('bellCurveCanvas');
+        const ctx = canvas.getContext('2d');
+
+        /**
+         * Error function approximation (Abramowitz and Stegun)
+         */
+        function erf(x) {
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+
+            const sign = x < 0 ? -1 : 1;
+            x = Math.abs(x);
+
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+
+            return sign * y;
+        }
+
+        /**
+         * Standard Normal Cumulative Distribution Function (CDF)
+         */
+        function normalCDF(z) {
+            return 0.5 * (1 + erf(z / Math.SQRT2));
+        }
+
+        /**
+         * Calculate one-tailed p-value for right tail: P(Z > z)
+         */
+        function calculatePValue(z) {
+            if (z <= 0) {
+                // If Z is negative or zero, area in right tail is > 0.5
+                return 1 - normalCDF(z);
+            }
+            const p = 1 - normalCDF(z);
+            return p < 0.0001 ? 0.0001 : p;
+        }
+
+        /**
+         * Generate random sample data around target mean
+         */
+        function generateSampleData(n, targetMean) {
+            const data = [];
+            const stdDev = 15; // Realistic variation for CD4 cell count
+            for (let i = 0; i < n; i++) {
+                // Box-Muller transform for normal distribution
+                const u1 = Math.random();
+                const u2 = Math.random();
+                const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+                const val = (targetMean + z0 * stdDev).toFixed(1);
+                data.push(parseFloat(val));
+            }
+            return data;
+        }
+
+        /**
+         * Compute Z-test statistics and update all visual elements
+         */
+        function runAnalysis() {
+            // Parse sample array
+            const rawText = sampleDataInput.value;
+            const values = rawText.split(/[\s,]+/)
+                                  .map(v => parseFloat(v))
+                                  .filter(v => !isNaN(v));
+
+            if (values.length < 2) {
+                alert('Por favor ingresa al menos 2 números válidos separados por comas.');
+                return;
+            }
+
+            const n = values.length;
+            const mean = values.reduce((a, b) => a + b, 0) / n;
+            
+            // Sample Standard Deviation (s)
+            const variance = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / (n - 1);
+            const stdDev = Math.sqrt(variance);
+
+            // Standard Error (SE)
+            const se = stdDev / Math.sqrt(n);
+
+            // Z Score
+            const zScore = (mean - REFERENCE_MU0) / se;
+
+            // Alpha level
+            const alpha = parseFloat(alphaSelect.value);
+
+            // P-Value
+            const pValue = calculatePValue(zScore);
+
+            // Update Steps Text
+            stepMu0.textContent = `${REFERENCE_MU0} células`;
+            stepMean.textContent = `${mean.toFixed(2)} células`;
+            stepN.textContent = `${n} pacientes`;
+            stepStdDev.textContent = stdDev.toFixed(2);
+            stepSEFormula.textContent = `SE = ${stdDev.toFixed(2)} / √${n} = ${se.toFixed(4)}`;
+            stepZFormula.textContent = `Z = (${mean.toFixed(2)} - ${REFERENCE_MU0}) / ${se.toFixed(4)} = ${zScore.toFixed(4)}`;
+
+            // Update Top Results Card
+            const pValFormatted = pValue <= 0.0001 ? "0.0001" : pValue.toFixed(4);
+            resPValue.textContent = pValFormatted;
+            resAlpha.textContent = alpha.toFixed(2);
+
+            // Check Hypothesis Decision
+            const isRejected = pValue <= alpha;
+            if (isRejected) {
+                resComparisonText.innerHTML = `<span class="text-emerald-400 font-mono">${pValFormatted}</span> &le; <span class="font-mono">${alpha.toFixed(2)}</span> (P-value es menor o igual a Alfa)`;
+                
+                conclusionCard.className = "rounded-xl p-5 border transition-all bg-emerald-950/40 border-emerald-500/60 text-emerald-100";
+                conclusionTitle.className = "text-base font-bold text-emerald-400";
+                conclusionTitle.textContent = "¡Rechazamos la Hipótesis Nula!";
+                conclusionBody.textContent = `Los datos son suficientemente raros (p = ${pValFormatted}) si la vacuna fuera igual al tratamiento viejo (500 células/mm³). Concluimos que el nuevo tratamiento es significativamente superior.`;
+                conclusionIcon.className = "w-6 h-6 text-emerald-400";
+            } else {
+                resComparisonText.innerHTML = `<span class="text-amber-400 font-mono">${pValFormatted}</span> &gt; <span class="font-mono">${alpha.toFixed(2)}</span> (P-value es mayor a Alfa)`;
+                
+                conclusionCard.className = "rounded-xl p-5 border transition-all bg-amber-950/40 border-amber-500/60 text-amber-100";
+                conclusionTitle.className = "text-base font-bold text-amber-400";
+                conclusionTitle.textContent = "No se Rechaza la Hipótesis Nula";
+                conclusionBody.textContent = `No hay suficiente evidencia estadística (p = ${pValFormatted}). La diferencia observada podría deberse al azar y no se puede afirmar que la nueva vacuna sea superior a la terapia actual.`;
+                conclusionIcon.className = "w-6 h-6 text-amber-400";
+            }
+
+            // Update Inline Z-table expressions
+            zTextInline.textContent = zScore.toFixed(2);
+            zValExpr.textContent = zScore.toFixed(4);
+            pValExpr.textContent = pValFormatted;
+
+            // Draw Bell Curve Canvas
+            drawBellCurve(zScore, pValue);
+        }
+
+        /**
+         * Renders the Gaussian Normal Distribution with shaded right tail
+         */
+        function drawBellCurve(zValue, pValue) {
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.clearRect(0, 0, width, height);
+
+            const paddingX = 60;
+            const paddingY = 40;
+            const plotWidth = width - 2 * paddingX;
+            const plotHeight = height - 2 * paddingY;
+            const baselineY = height - paddingY;
+
+            // Standard normal range from z = -4 to +6 (for nice tail visibility)
+            const minZ = -3.5;
+            const maxZ = Math.max(5.5, zValue + 1.0);
+
+            function zToX(z) {
+                return paddingX + ((z - minZ) / (maxZ - minZ)) * plotWidth;
+            }
+
+            function gaussianPDF(z) {
+                return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * z * z);
+            }
+
+            const maxPDF = gaussianPDF(0);
+            function pdfToY(pdf) {
+                return baselineY - (pdf / maxPDF) * (plotHeight * 0.85);
+            }
+
+            // 1. Draw Shaded P-Value Red Area (Right Tail)
+            const clampedZ = Math.max(minZ, Math.min(maxZ, zValue));
+            const xStartRed = zToX(clampedZ);
+
+            ctx.beginPath();
+            ctx.moveTo(xStartRed, baselineY);
+            
+            const step = 0.05;
+            for (let z = clampedZ; z <= maxZ; z += step) {
+                const x = zToX(z);
+                const y = pdfToY(gaussianPDF(z));
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(zToX(maxZ), baselineY);
+            ctx.closePath();
+            
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.55)'; // Red semi-transparent
+            ctx.fill();
+
+            // 2. Draw Main Normal Curve Line
+            ctx.beginPath();
+            ctx.strokeStyle = '#3b82f6'; // Bright Blue
+            ctx.lineWidth = 3;
+
+            for (let z = minZ; z <= maxZ; z += step) {
+                const x = zToX(z);
+                const y = pdfToY(gaussianPDF(z));
+                if (z === minZ) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // 3. Draw Baseline (X Axis)
+            ctx.beginPath();
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 1.5;
+            ctx.moveTo(paddingX - 10, baselineY);
+            ctx.lineTo(width - paddingX + 10, baselineY);
+            ctx.stroke();
+
+            // 4. Mark Mean H0 = 0
+            const xZero = zToX(0);
+            ctx.beginPath();
+            ctx.strokeStyle = '#94a3b8';
+            ctx.setLineDash([4, 4]);
+            ctx.moveTo(xZero, baselineY);
+            ctx.lineTo(xZero, pdfToY(maxPDF));
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset line dash
+
+            // Labels for H0 = 0
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('H₀', xZero, baselineY + 20);
+            ctx.fillText('0', xZero, baselineY + 36);
+
+            // 5. Draw Target Z Indicator Marker
+            ctx.beginPath();
+            ctx.fillStyle = '#ef4444'; // Red circle highlight
+            ctx.arc(xStartRed, baselineY, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Text Label pointing to Z area
+            ctx.fillStyle = '#f87171';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            const textY = Math.max(40, pdfToY(gaussianPDF(clampedZ)) - 15);
+            ctx.fillText(`Área = Valor P`, Math.min(width - 70, xStartRed + 40), textY);
+            
+            // Pointer Line
+            ctx.beginPath();
+            ctx.strokeStyle = '#f87171';
+            ctx.lineWidth = 1.5;
+            ctx.moveTo(Math.min(width - 70, xStartRed + 40), textY + 5);
+            ctx.lineTo(xStartRed + 5, baselineY - 10);
+            ctx.stroke();
+        }
+
+        // Event Listeners
+        btnGenerate.addEventListener('click', () => {
+            const n = parseInt(sampleSizeSelect.value);
+            const targetMean = parseFloat(targetMeanInput.value);
+            const data = generateSampleData(n, targetMean);
+            sampleDataInput.value = data.join(', ');
+            runAnalysis();
+        });
+
+        btnAnalyze.addEventListener('click', runAnalysis);
+        alphaSelect.addEventListener('change', runAnalysis);
+
+        // Initial default generation on page load
+        window.addEventListener('load', () => {
+            const initialData = [52.5, 54.0, 51.2, 53.1, 53.0, 49.5, 56.2, 50.8, 52.1, 54.6, 53.2, 51.8].map(v => v * 10);
+            sampleDataInput.value = initialData.join(', ');
+            runAnalysis();
+        });
+    </script>
+</body>
+</html>
